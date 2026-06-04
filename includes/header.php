@@ -53,6 +53,7 @@ if ($user['role'] === 'pembeli' && $user['id']) {
           <span style="background:var(--accent2);color:#fff;padding:1px 6px;border-radius:10px;font-size:10px;margin-left:4px"><?= $cartCount ?></span>
         <?php endif; ?>
       </a>
+      <a href="/stepx/pesanan.php" class="<?= $activePage==='pesanan' ? 'active' : '' ?>">📦 Pesanan</a>
     <?php endif; ?>
     <?php if ($user['role'] !== 'pembeli'): ?>
       <a href="/stepx/tambah.php" class="<?= $activePage==='tambah' ? 'active' : '' ?>">+ Tambah</a>
