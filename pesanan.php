@@ -28,7 +28,7 @@ $params = [$userId];
 $types  = 'i';
 
 if ($keyword !== '') {
-    $sql    .= ' AND (p.kode_pesanan LIKE ? OR dp.nama_produk LIKE ?)';
+    $sql     .= ' AND (p.kode_pesanan LIKE ? OR dp.nama_produk LIKE ?)';
     $like    = '%' . $keyword . '%';
     $params[] = $like;
     $params[] = $like;
@@ -61,7 +61,7 @@ function badgeStatus(string $status, string $type): string {
         ],
     ];
     $info  = $map[$type][$status] ?? ['label' => $status, 'color' => '#6b7280'];
-    return '<span style="background:' . $info['color'] . '1a;color:' . $info['color'] . ';border:1px solid ' . $info['color'] . '40;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600">'
+    return '<span style="background:' . $info['color'] . '1a;color:' . $info['color'] . ';border:1px solid ' . $info['color'] . '40;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600">'
          . htmlspecialchars($info['label']) . '</span>';
 }
 
@@ -80,11 +80,10 @@ $activePage = 'pesanan';
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<div class="cart-wrap">
-  <a class="back-link" href="catalog.php" style="display:inline-flex;align-items:center;gap:6px;padding-top:8px">← Lanjut Belanja</a>
+<div class="cart-wrap" style="max-width: 800px; margin: 0 auto;">
+  <a class="back-link" href="catalog.php" style="display:inline-flex;align-items:center;gap:6px;padding-top:8px; text-decoration: none;">← Lanjut Belanja</a>
   <h2>Riwayat Pesanan</h2>
 
-  <!-- SEARCH BAR -->
   <form method="GET" action="pesanan.php" style="margin:16px 0;display:flex;gap:8px">
     <input type="text" name="q" value="<?= htmlspecialchars($keyword) ?>"
            placeholder="Cari kode pesanan atau nama produk..."
@@ -122,10 +121,10 @@ require_once __DIR__ . '/includes/header.php';
           </div>
           <div style="font-weight:700;font-size:16px"><?= rp($p['total_bayar']) ?></div>
         </div>
-        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center">
+        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center">
           <?= badgeStatus($p['status_pesanan'], 'status_pesanan') ?>
           <?= badgeStatus($p['status_bayar'], 'status_bayar') ?>
-          <a href="pesanan.php?detail=<?= $p['id'] ?>" style="margin-left:auto;font-size:13px;color:var(--accent)">Lihat Detail →</a>
+          <a href="detail_pesanan.php?id=<?= $p['id'] ?>" style="margin-left:auto;font-size:13px;color:var(--accent); font-weight:600; text-decoration:none;">Lihat Detail →</a>
         </div>
       </div>
       <?php endforeach; ?>
