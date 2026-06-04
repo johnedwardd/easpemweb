@@ -4,45 +4,47 @@ require_once __DIR__ . '/includes/config.php';
 
 // Kalau sudah login, langsung ke catalog
 if (isLoggedIn()) {
-    header('Location: catalog.php');
-    exit;
+  header('Location: catalog.php');
+  exit;
 }
 
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email'] ?? '');
-    $pass  = trim($_POST['password'] ?? '');
+  $email = trim($_POST['email'] ?? '');
+  $pass  = trim($_POST['password'] ?? '');
 
-    if (!$email || !$pass) {
-        $error = 'Email dan password wajib diisi!';
+  if (!$email || !$pass) {
+    $error = 'Email dan password wajib diisi!';
+  }else{
+    $db   = getDB();
+    $stmt = $db->prepare('SELECT * FROM users WHERE email = ? LIMIT 1');
+    $stmt->bind_param('s', $email);
+    $stmt->execute();
+    $user = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$user) {
+      $error = 'Email tidak ditemukan!';
+    }elseif(!password_verify($pass, $user['password'])) {
+      // Di produksi gunakan: password_verify($pass, $user['password'])
+      $error = 'Password yang dimasukkan salah!';
     } else {
-        $db   = getDB();
-        $stmt = $db->prepare('SELECT * FROM users WHERE email = ? LIMIT 1');
-        $stmt->bind_param('s', $email);
-        $stmt->execute();
-        $user = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
+      // Simpan session
+      $_SESSION['user_id'] = $user['id'];
+      $_SESSION['nama']    = $user['nama'];
+      $_SESSION['email']   = $user['email'];
+      $_SESSION['role']    = $user['role'];
+      $_SESSION['no_hp']   = $user['no_hp'] ?? '';
+      $_SESSION['cart']    = [];
 
-        if (!$user) {
-            $error = 'Email tidak ditemukan!';
-        }elseif (!password_verify($pass, $user['password'])) {
-         $error = 'Password yang dimasukkan salah!';
-        } else {
-            // Simpan session
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['nama']    = $user['nama'];
-            $_SESSION['email']   = $user['email'];
-            $_SESSION['role']    = $user['role'];
-            $_SESSION['no_hp']   = $user['no_hp'] ?? '';
-            $_SESSION['cart']    = [];
-
-            header('Location: catalog.php');
-            exit;
-        }
+      header('Location: catalog.php');
+      exit;
     }
+  }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -81,6 +83,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
       <button type="submit" class="btn-primary full">Masuk</button>
     </form>
+    <p style="text-align:right;margin-top:8px;font-size:13px">
+      <a href="forgot_password.php" style="color:var(--muted)">Lupa password?</a>
+    </p>
 
     <p style="text-align:center;margin-top:16px;font-size:14px;color:var(--muted)">
       Belum punya akun? <a href="register.php" style="color:var(--accent);font-weight:600">Daftar sekarang</a>
