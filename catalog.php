@@ -6,13 +6,31 @@ requireLogin();
 $user = currentUser();
 $db   = getDB();
 
-// Ambil semua produk + nama kategori
-$produk = $db->query(
-    'SELECT p.*, k.nama AS kategori_nama
-     FROM produk p
-     LEFT JOIN kategori k ON k.id = p.kategori_id
-     ORDER BY p.id DESC'
-)->fetch_all(MYSQLI_ASSOC);
+// Ambil keyword search
+$keyword = trim($_GET['q'] ?? '');
+
+// Ambil semua produk + filter search
+if ($keyword !== '') {
+    $like = '%' . $keyword . '%';
+    $st = $db->prepare(
+        'SELECT p.*, k.nama AS kategori_nama
+         FROM produk p
+         LEFT JOIN kategori k ON k.id = p.kategori_id
+         WHERE p.nama LIKE ? OR p.brand LIKE ? OR k.nama LIKE ?
+         ORDER BY p.id DESC'
+    );
+    $st->bind_param('sss', $like, $like, $like);
+    $st->execute();
+    $produk = $st->get_result()->fetch_all(MYSQLI_ASSOC);
+    $st->close();
+} else {
+    $produk = $db->query(
+        'SELECT p.*, k.nama AS kategori_nama
+         FROM produk p
+         LEFT JOIN kategori k ON k.id = p.kategori_id
+         ORDER BY p.id DESC'
+    )->fetch_all(MYSQLI_ASSOC);
+}
 
 $pageTitle  = 'Katalog Sepatu';
 $activePage = 'catalog';
@@ -30,6 +48,23 @@ require_once __DIR__ . '/includes/header.php';
       <?php endif; ?>
     </div>
   </div>
+
+  <!-- SEARCH BAR -->
+  <form method="GET" action="catalog.php" style="margin:16px 0;display:flex;gap:8px">
+    <input type="text" name="q" value="<?= htmlspecialchars($keyword) ?>"
+           placeholder="Cari nama produk, brand, atau kategori..."
+           style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--surface);color:var(--text)">
+    <button type="submit" class="btn-primary" style="padding:10px 20px">Cari</button>
+    <?php if ($keyword): ?>
+      <a href="catalog.php" class="btn-ghost" style="padding:10px 16px;text-decoration:none">Reset</a>
+    <?php endif; ?>
+  </form>
+  <?php if ($keyword): ?>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:4px">
+      Hasil untuk: <strong>"<?= htmlspecialchars($keyword) ?>"</strong>
+      — <?= count($produk) ?> produk ditemukan
+    </p>
+  <?php endif; ?>
 
   <?php if (empty($produk)): ?>
     <div class="empty-state">
