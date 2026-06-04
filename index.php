@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!$user) {
             $error = 'Email tidak ditemukan!';
-        } elseif (!password_verify($pass, $user['password'])) {
+        } elseif (!password_verify($pass,$user['password'])) {
             $error = 'Password yang dimasukkan salah!';
         } else {
             // Simpan session
@@ -81,6 +81,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
       <button type="submit" class="btn-primary full">Masuk</button>
     </form>
+    <p style="text-align:right;margin-top:8px;font-size:13px">
+      <a href="forgot_password.php" style="color:var(--muted)">Lupa password?</a>
+    </p>
 
     <p style="text-align:center;margin-top:16px;font-size:14px;color:var(--muted)">
       Belum punya akun? <a href="register.php" style="color:var(--accent);font-weight:600">Daftar sekarang</a>

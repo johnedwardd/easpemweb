@@ -43,7 +43,36 @@ if ($action === 'edit_profil') {
     }
 }
 
-// 2. Tambah / edit alamat
+// 2. Ganti password
+if ($action === 'ganti_password') {
+    $passLama  = trim($_POST['pass_lama']  ?? '');
+    $passBaru  = trim($_POST['pass_baru']  ?? '');
+    $passBaru2 = trim($_POST['pass_baru2'] ?? '');
+
+    if (!$passLama || !$passBaru || !$passBaru2) {
+        $error = 'Semua field password wajib diisi!';
+    } elseif (strlen($passBaru) < 6) {
+        $error = 'Password baru minimal 6 karakter!';
+    } elseif ($passBaru !== $passBaru2) {
+        $error = 'Konfirmasi password baru tidak cocok!';
+    } else {
+        // Verifikasi password lama
+        $passLamaValid = password_verify($passLama, $u['password'])
+                      || $passLama === $u['password']; // fallback plain text
+        if (!$passLamaValid) {
+            $error = 'Password lama tidak sesuai!';
+        } else {
+            $hashed = password_hash($passBaru, PASSWORD_DEFAULT);
+            $st = $db->prepare('UPDATE users SET password = ? WHERE id = ?');
+            $st->bind_param('si', $hashed, $userId);
+            $st->execute();
+            $st->close();
+            $success = 'Password berhasil diubah!';
+        }
+    }
+}
+
+// 3. Tambah / edit alamat
 if ($action === 'simpan_alamat') {
     $alamatId      = (int)($_POST['alamat_id'] ?? 0);
     $label         = trim($_POST['label']          ?? 'Rumah');
@@ -85,7 +114,7 @@ if ($action === 'simpan_alamat') {
     }
 }
 
-// 3. Hapus alamat
+// 4. Hapus alamat
 if ($action === 'hapus_alamat') {
     $alamatId = (int)($_POST['alamat_id'] ?? 0);
     if ($alamatId > 0) {
@@ -97,7 +126,7 @@ if ($action === 'hapus_alamat') {
     }
 }
 
-// 4. Set alamat utama
+// 5. Set alamat utama
 if ($action === 'set_utama') {
     $alamatId = (int)($_POST['alamat_id'] ?? 0);
     if ($alamatId > 0) {
@@ -146,6 +175,7 @@ require_once __DIR__ . '/includes/header.php';
 ?>
 
 <style>
+.profile-wrap { padding:32px; max-width:560px; margin:0 auto; }
 .profile-tabs { display:flex; gap:0; border-bottom:2px solid var(--border); margin-bottom:24px; }
 .profile-tab  { padding:10px 20px; cursor:pointer; font-weight:600; font-size:14px; color:var(--muted); border-bottom:2px solid transparent; margin-bottom:-2px; transition:.2s; }
 .profile-tab.active { color:var(--text); border-bottom-color:var(--text); }
@@ -174,6 +204,7 @@ require_once __DIR__ . '/includes/header.php';
     <?php if ($u['role'] === 'pembeli'): ?>
     <div class="profile-tab <?= $editAlamat ? 'active' : '' ?>" onclick="switchTab('tab-alamat', this)">📍 Alamat</div>
     <?php endif; ?>
+    <div class="profile-tab" onclick="switchTab('tab-password', this)">🔒 Ubah Password</div>
   </div>
 
   <!-- TAB: PROFIL -->
@@ -307,6 +338,35 @@ require_once __DIR__ . '/includes/header.php';
   <?php endif; ?>
 </div>
 
+  <!-- TAB: PASSWORD -->
+  <div id="tab-password" class="tab-content">
+    <div class="profile-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+        <div style="width:40px;height:40px;background:var(--surface2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px">🔒</div>
+        <div>
+          <div style="font-weight:700;font-size:15px">Ubah Password</div>
+          <div style="font-size:12px;color:var(--muted)">Pastikan password baru minimal 6 karakter</div>
+        </div>
+      </div>
+      <form method="POST" action="profile.php">
+        <input type="hidden" name="action" value="ganti_password">
+        <div class="field">
+          <label>Password Lama <span style="color:var(--accent2)">*</span></label>
+          <input type="password" name="pass_lama" placeholder="Masukkan password lama" required>
+        </div>
+        <div class="field">
+          <label>Password Baru <span style="color:var(--accent2)">*</span></label>
+          <input type="password" name="pass_baru" placeholder="Min. 6 karakter" required>
+        </div>
+        <div class="field">
+          <label>Konfirmasi Password Baru <span style="color:var(--accent2)">*</span></label>
+          <input type="password" name="pass_baru2" placeholder="Ulangi password baru" required>
+        </div>
+        <button type="submit" class="btn-primary">Simpan Password Baru</button>
+      </form>
+    </div>
+  </div>
+
 <script>
 function switchTab(id, el) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -314,10 +374,14 @@ function switchTab(id, el) {
   document.getElementById(id).classList.add('active');
   el.classList.add('active');
 }
-// Buka tab alamat otomatis kalau ada ?tab=alamat di URL
-if (new URLSearchParams(location.search).get('tab') === 'alamat') {
+// Buka tab otomatis kalau ada ?tab= di URL
+const tabParam = new URLSearchParams(location.search).get('tab');
+if (tabParam === 'alamat') {
   const tabAlamat = document.querySelector('.profile-tab:nth-child(2)');
   if (tabAlamat) switchTab('tab-alamat', tabAlamat);
+} else if (tabParam === 'password') {
+  const tabPass = document.querySelector('.profile-tab:last-child');
+  if (tabPass) switchTab('tab-password', tabPass);
 }
 </script>
 
