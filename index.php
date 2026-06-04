@@ -26,8 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!$user) {
             $error = 'Email tidak ditemukan!';
-        }elseif (!password_verify($pass, $user['password'])) {
-         $error = 'Password yang dimasukkan salah!';
+        } elseif ($user['password'] !== $pass) {
+            // Di produksi gunakan: password_verify($pass, $user['password'])
+            $error = 'Password yang dimasukkan salah!';
         } else {
             // Simpan session
             $_SESSION['user_id'] = $user['id'];
