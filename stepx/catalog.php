@@ -31,59 +31,59 @@ $params = [];
 $types  = '';
 
 if ($keyword !== '') {
-    $like = '%' . $keyword . '%';
-    $where[]  = '(p.nama LIKE ? OR p.brand LIKE ? OR k.nama LIKE ?)';
-    $params   = array_merge($params, [$like, $like, $like]);
-    $types   .= 'sss';
+  $like = '%' . $keyword . '%';
+  $where[]  = '(p.nama LIKE ? OR p.brand LIKE ? OR k.nama LIKE ?)';
+  $params   = array_merge($params, [$like, $like, $like]);
+  $types   .= 'sss';
 }
 if ($filterKat !== '') {
-    $where[]  = 'p.kategori_id = ?';
-    $params[] = $filterKat;
-    $types   .= 'i';
+  $where[]  = 'p.kategori_id = ?';
+  $params[] = $filterKat;
+  $types   .= 'i';
 }
 if ($filterBrand !== '') {
-    $where[]  = 'p.brand = ?';
-    $params[] = $filterBrand;
-    $types   .= 's';
+  $where[]  = 'p.brand = ?';
+  $params[] = $filterBrand;
+  $types   .= 's';
 }
 if ($filterStok === 'ada') {
-    $where[] = 'p.stok > 0';
+  $where[] = 'p.stok > 0';
 } elseif ($filterStok === 'habis') {
-    $where[] = 'p.stok = 0';
+  $where[] = 'p.stok = 0';
 }
 if ($filterHargaMin > 0) {
-    $where[]  = 'p.harga_jual >= ?';
-    $params[] = $filterHargaMin;
-    $types   .= 'i';
+  $where[]  = 'p.harga_jual >= ?';
+  $params[] = $filterHargaMin;
+  $types   .= 'i';
 }
 if ($filterHargaMax > 0) {
-    $where[]  = 'p.harga_jual <= ?';
-    $params[] = $filterHargaMax;
-    $types   .= 'i';
+  $where[]  = 'p.harga_jual <= ?';
+  $params[] = $filterHargaMax;
+  $types   .= 'i';
 }
 if ($filterBaru) {
-    $where[] = 'p.is_new = 1';
+  $where[] = 'p.is_new = 1';
 }
 if ($filterUkuran !== '') {
-    $where[]  = 'EXISTS (SELECT 1 FROM produk_ukuran pu WHERE pu.produk_id = p.id AND pu.ukuran = ? AND pu.stok > 0)';
-    $params[] = $filterUkuran;
-    $types   .= 's';
+  $where[]  = 'EXISTS (SELECT 1 FROM produk_ukuran pu WHERE pu.produk_id = p.id AND pu.ukuran = ? AND pu.stok > 0)';
+  $params[] = $filterUkuran;
+  $types   .= 's';
 }
 
 $sql = 'SELECT p.*, k.nama AS kategori_nama
-        FROM produk p
-        LEFT JOIN kategori k ON k.id = p.kategori_id
-        WHERE ' . implode(' AND ', $where) . '
-        ORDER BY p.id DESC';
+  FROM produk p
+  LEFT JOIN kategori k ON k.id = p.kategori_id
+  WHERE ' . implode(' AND ', $where) . '
+  ORDER BY p.id DESC';
 
 if ($params) {
-    $st = $db->prepare($sql);
-    $st->bind_param($types, ...$params);
-    $st->execute();
-    $produk = $st->get_result()->fetch_all(MYSQLI_ASSOC);
-    $st->close();
+  $st = $db->prepare($sql);
+  $st->bind_param($types, ...$params);
+  $st->execute();
+  $produk = $st->get_result()->fetch_all(MYSQLI_ASSOC);
+  $st->close();
 } else {
-    $produk = $db->query($sql)->fetch_all(MYSQLI_ASSOC);
+  $produk = $db->query($sql)->fetch_all(MYSQLI_ASSOC);
 }
 
 // Cek apakah ada filter aktif
@@ -113,8 +113,8 @@ require_once __DIR__ . '/includes/header.php';
       <!-- Search -->
       <div class="filter-search-row">
         <input type="text" name="q" value="<?= htmlspecialchars($keyword) ?>"
-               placeholder="Cari nama, brand, atau kategori..."
-               class="filter-input filter-input--search">
+          placeholder="Cari nama, brand, atau kategori..."
+          class="filter-input filter-input--search">
         <button type="submit" class="btn-primary" style="padding:10px 24px;white-space:nowrap">🔍 Cari</button>
         <?php if ($hasFilter): ?>
           <a href="catalog.php" class="btn-ghost" style="padding:10px 16px;text-decoration:none;white-space:nowrap">✕ Reset</a>
@@ -177,14 +177,14 @@ require_once __DIR__ . '/includes/header.php';
         <div class="filter-group">
           <label class="filter-label">Harga Min (Rp)</label>
           <input type="number" name="harga_min" value="<?= $filterHargaMin ?: '' ?>"
-                 placeholder="0" min="0" step="50000" class="filter-input">
+            placeholder="0" min="0" step="50000" class="filter-input">
         </div>
 
         <!-- Harga Max -->
         <div class="filter-group">
           <label class="filter-label">Harga Max (Rp)</label>
           <input type="number" name="harga_max" value="<?= $filterHargaMax ?: '' ?>"
-                 placeholder="Tak terbatas" min="0" step="50000" class="filter-input">
+            placeholder="Tak terbatas" min="0" step="50000" class="filter-input">
         </div>
 
         <!-- Produk Baru -->
@@ -192,7 +192,7 @@ require_once __DIR__ . '/includes/header.php';
           <label class="filter-label">&nbsp;</label>
           <label class="filter-checkbox-label">
             <input type="checkbox" name="baru" value="1" <?= $filterBaru ? 'checked' : '' ?>
-                   onchange="this.form.submit()">
+              onchange="this.form.submit()">
             <span>⭐ Produk Baru</span>
           </label>
         </div>

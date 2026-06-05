@@ -3,52 +3,53 @@
 require_once __DIR__ . '/includes/config.php';
 
 if (isLoggedIn()) {
-    header('Location: catalog.php');
-    exit;
+  header('Location: catalog.php');
+  exit;
 }
 
 $error   = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nama  = trim($_POST['nama']     ?? '');
-    $email = trim($_POST['email']    ?? '');
-    $no_hp = trim($_POST['no_hp']    ?? '');
-    $pass  = trim($_POST['password'] ?? '');
-    $pass2 = trim($_POST['password2'] ?? '');
+  $nama  = trim($_POST['nama']     ?? '');
+  $email = trim($_POST['email']    ?? '');
+  $no_hp = trim($_POST['no_hp']    ?? '');
+  $pass  = trim($_POST['password'] ?? '');
+  $pass2 = trim($_POST['password2'] ?? '');
 
-    if (!$nama || !$email || !$pass || !$pass2) {
-        $error = 'Nama, email, dan password wajib diisi!';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = 'Format email tidak valid!';
-    } elseif (strlen($pass) < 6) {
-        $error = 'Password minimal 6 karakter!';
-    } elseif ($pass !== $pass2) {
-        $error = 'Konfirmasi password tidak cocok!';
-    } else {
-        $db = getDB();
+  if (!$nama || !$email || !$pass || !$pass2) {
+    $error = 'Nama, email, dan password wajib diisi!';
+  } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $error = 'Format email tidak valid!';
+  } elseif (strlen($pass) < 6) {
+    $error = 'Password minimal 6 karakter!';
+  } elseif ($pass !== $pass2) {
+    $error = 'Konfirmasi password tidak cocok!';
+  } else {
+    $db = getDB();
 
-        // Cek email sudah terdaftar
-        $st = $db->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
-        $st->bind_param('s', $email);
-        $st->execute();
-        $existing = $st->get_result()->fetch_assoc();
-        $st->close();
+    // Cek email sudah terdaftar
+    $st = $db->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
+    $st->bind_param('s', $email);
+    $st->execute();
+    $existing = $st->get_result()->fetch_assoc();
+    $st->close();
 
-        if ($existing) {
-            $error = 'Email sudah terdaftar! Silakan login.';
-        } else {
-            $st = $db->prepare('INSERT INTO users (nama, email, password, no_hp, role, status) VALUES (?, ?, ?, ?, "pembeli", "aktif")');
-            $hashedPass = password_hash($pass, PASSWORD_DEFAULT);
-            $st->bind_param('ssss', $nama, $email, $hashedPass, $no_hp);
-            $st->execute();
-            $st->close();
+    if ($existing) {
+      $error = 'Email sudah terdaftar! Silakan login.';
+    }else{
+      $st = $db->prepare('INSERT INTO users (nama, email, password, no_hp, role, status) VALUES (?, ?, ?, ?, "pembeli", "aktif")');
+      $hashedPass = password_hash($pass, PASSWORD_DEFAULT);
+      $st->bind_param('ssss', $nama, $email, $hashedPass, $no_hp);
+      $st->execute();
+      $st->close();
 
-            $success = 'Registrasi berhasil! Silakan <a href="index.php" style="color:var(--accent);font-weight:600">login sekarang</a>.';
-        }
+      $success = 'Registrasi berhasil! Silakan <a href="index.php" style="color:var(--accent);font-weight:600">login sekarang</a>.';
     }
+  }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>

@@ -236,7 +236,7 @@ require_once __DIR__ . '/includes/header.php';
           <div>
             <span style="font-size:12px;background:var(--surface2);padding:2px 8px;border-radius:20px;font-weight:500"><?= htmlspecialchars($al['label']) ?></span>
             <?php if ($al['is_utama']): ?>
-              <span style="font-size:11px;color:var(--accent);font-weight:600;margin-left:6px">✓ Utama</span>
+              <span style="font-size:11px;color:green;font-weight:600;margin-left:6px">✓ Utama</span>
             <?php endif; ?>
             <div style="font-weight:600;margin-top:6px"><?= htmlspecialchars($al['nama_penerima']) ?></div>
             <div style="font-size:13px;color:var(--muted)"><?= htmlspecialchars($al['no_hp']) ?></div>

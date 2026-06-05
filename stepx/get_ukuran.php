@@ -7,13 +7,13 @@ header('Content-Type: application/json');
 
 $id = (int)($_GET['id'] ?? 0);
 if ($id <= 0) {
-    echo json_encode([]);
-    exit;
+  echo json_encode([]);
+  exit;
 }
 
 $db = getDB();
 $st = $db->prepare(
-    'SELECT ukuran, stok FROM produk_ukuran WHERE produk_id = ? ORDER BY CAST(ukuran AS UNSIGNED)'
+  'SELECT ukuran, stok FROM produk_ukuran WHERE produk_id = ? ORDER BY CAST(ukuran AS UNSIGNED)'
 );
 $st->bind_param('i', $id);
 $st->execute();

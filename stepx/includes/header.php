@@ -5,25 +5,26 @@ if (!isset($activePage)) $activePage = '';
 $user = currentUser();
 
 $roleClass = [
-    'admin'   => 'role-admin',
-    'penjual' => 'role-penjual',
-    'pembeli' => 'role-pembeli',
+  'admin'   => 'role-admin',
+  'penjual' => 'role-penjual',
+  'pembeli' => 'role-pembeli',
 ][$user['role']] ?? '';
 
 $initials = strtoupper(implode('', array_map(fn($w) => $w[0],
-    array_slice(explode(' ', $user['nama'] ?: 'SX'), 0, 2))));
+  array_slice(explode(' ', $user['nama'] ?: 'SX'), 0, 2))));
 
 // Cart count dari DB (bukan session)
 $cartCount = 0;
 if ($user['role'] === 'pembeli' && $user['id']) {
-    $db = getDB();
-    $st = $db->prepare('SELECT COALESCE(SUM(qty), 0) AS total FROM keranjang WHERE user_id = ?');
-    $st->bind_param('i', $user['id']);
-    $st->execute();
-    $cartCount = (int)($st->get_result()->fetch_assoc()['total'] ?? 0);
-    $st->close();
+  $db = getDB();
+  $st = $db->prepare('SELECT COALESCE(SUM(qty), 0) AS total FROM keranjang WHERE user_id = ?');
+  $st->bind_param('i', $user['id']);
+  $st->execute();
+  $cartCount = (int)($st->get_result()->fetch_assoc()['total'] ?? 0);
+  $st->close();
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>

@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </p>
 
     <p style="text-align:center;margin-top:16px;font-size:14px;color:var(--muted)">
-      Belum punya akun? <a href="register.php" style="color:var(--accent);font-weight:600">Daftar sekarang</a>
+      Belum punya akun? <a href="register.php" style="color:green;font-weight:600">Daftar sekarang</a>
     </p>
   </div>
 </div>

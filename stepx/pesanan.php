@@ -5,8 +5,8 @@ requireLogin();
 
 $user = currentUser();
 if ($user['role'] !== 'pembeli') {
-    header('Location: catalog.php');
-    exit;
+  header('Location: catalog.php');
+  exit;
 }
 
 $db     = getDB();
@@ -18,28 +18,28 @@ $statusFilter = trim($_GET['status'] ?? '');
 
 // Query riwayat pesanan + filter search & status
 $sql = '
-    SELECT p.id, p.kode_pesanan, p.total_bayar, p.metode_bayar,
-           p.status_bayar, p.status_pesanan, p.created_at,
-           COUNT(dp.id) AS jumlah_item
-    FROM pesanan p
-    LEFT JOIN detail_pesanan dp ON dp.pesanan_id = p.id
-    WHERE p.pembeli_id = ?
+  SELECT p.id, p.kode_pesanan, p.total_bayar, p.metode_bayar,
+    p.status_bayar, p.status_pesanan, p.created_at,
+    COUNT(dp.id) AS jumlah_item
+  FROM pesanan p
+  LEFT JOIN detail_pesanan dp ON dp.pesanan_id = p.id
+  WHERE p.pembeli_id = ?
 ';
 $params = [$userId];
 $types  = 'i';
 
 if ($keyword !== '') {
-    $sql     .= ' AND (p.kode_pesanan LIKE ? OR dp.nama_produk LIKE ?)';
-    $like    = '%' . $keyword . '%';
-    $params[] = $like;
-    $params[] = $like;
-    $types   .= 'ss';
+  $sql     .= ' AND (p.kode_pesanan LIKE ? OR dp.nama_produk LIKE ?)';
+  $like    = '%' . $keyword . '%';
+  $params[] = $like;
+  $params[] = $like;
+  $types   .= 'ss';
 }
 
 if ($statusFilter !== '') {
-    $sql     .= ' AND p.status_pesanan = ?';
-    $params[] = $statusFilter;
-    $types   .= 's';
+  $sql     .= ' AND p.status_pesanan = ?';
+  $params[] = $statusFilter;
+  $types   .= 's';
 }
 
 $sql .= ' GROUP BY p.id ORDER BY p.created_at DESC';
@@ -52,53 +52,53 @@ $st->close();
 
 // Fungsi badge status tetap di sini
 function badgeStatus(string $status, string $type): string {
-    $map = [
-        'status_pesanan' => [
-            'proses'     => ['label' => 'Diproses',   'color' => '#f59e0b'],
-            'dikemas'    => ['label' => 'Dikemas',     'color' => '#3b82f6'],
-            'dikirim'    => ['label' => 'Dikirim',     'color' => '#8b5cf6'],
-            'selesai'    => ['label' => 'Selesai',     'color' => '#10b981'],
-            'dibatalkan' => ['label' => 'Dibatalkan',  'color' => '#ef4444'],
-        ],
-        'status_bayar' => [
-            'menunggu' => ['label' => 'Belum Bayar', 'color' => '#f59e0b'],
-            'lunas'    => ['label' => 'Lunas',        'color' => '#10b981'],
-            'gagal'    => ['label' => 'Gagal',        'color' => '#ef4444'],
-            'refund'   => ['label' => 'Refund',       'color' => '#6b7280'],
-        ],
-    ];
-    $info  = $map[$type][$status] ?? ['label' => $status, 'color' => '#6b7280'];
-    return '<span style="background:' . $info['color'] . '1a;color:' . $info['color'] . ';border:1px solid ' . $info['color'] . '40;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600">'
-         . htmlspecialchars($info['label']) . '</span>';
+  $map = [
+    'status_pesanan' => [
+      'proses'     => ['label' => 'Diproses',   'color' => '#f59e0b'],
+      'dikemas'    => ['label' => 'Dikemas',     'color' => '#3b82f6'],
+      'dikirim'    => ['label' => 'Dikirim',     'color' => '#8b5cf6'],
+      'selesai'    => ['label' => 'Selesai',     'color' => '#10b981'],
+      'dibatalkan' => ['label' => 'Dibatalkan',  'color' => '#ef4444'],
+    ],
+    'status_bayar' => [
+      'menunggu' => ['label' => 'Belum Bayar', 'color' => '#f59e0b'],
+      'lunas'    => ['label' => 'Lunas',        'color' => '#10b981'],
+      'gagal'    => ['label' => 'Gagal',        'color' => '#ef4444'],
+      'refund'   => ['label' => 'Refund',       'color' => '#6b7280'],
+    ],
+  ];
+  $info  = $map[$type][$status] ?? ['label' => $status, 'color' => '#6b7280'];
+  return '<span style="background:' . $info['color'] . '1a;color:' . $info['color'] . ';border:1px solid ' . $info['color'] . '40;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600">'
+    . htmlspecialchars($info['label']) . '</span>';
 }
 
 function labelMetode(string $m): string {
-    return match($m) {
-        'transfer_bank' => '🏦 Transfer Bank',
-        'ewallet'       => '📱 E-Wallet',
-        'cod'           => '🚪 COD',
-        'kartu_kredit'  => '💳 Kartu Kredit',
-        default         => $m,
-    };
+  return match($m) {
+    'transfer_bank' => '🏦 Transfer Bank',
+    'ewallet'       => '📱 E-Wallet',
+    'cod'           => '🚪 COD',
+    'kartu_kredit'  => '💳 Kartu Kredit',
+    default         => $m,
+  };
 }
 
 // FUNGSI FILTER DROP DOWN KITA TARUH LANGSUNG DI SINI BIAR GAK USAH LOAD FILE LUAR
 function renderStatusFilterDirect(string $currentStatus): void {
-    $options = [
-        ''           => '-- Semua Status Pesanan --',
-        'proses'     => '⏳ Diproses',
-        'dikemas'    => '📦 Dikemas',
-        'dikirim'    => '🚚 Dikirim',
-        'selesai'    => '✅ Selesai',
-        'dibatalkan' => '❌ Dibatalkan'
-    ];
+  $options = [
+    ''           => '-- Semua Status Pesanan --',
+    'proses'     => '⏳ Diproses',
+    'dikemas'    => '📦 Dikemas',
+    'dikirim'    => '🚚 Dikirim',
+    'selesai'    => '✅ Selesai',
+    'dibatalkan' => '❌ Dibatalkan'
+  ];
 
-    echo '<select name="status" style="flex:1; min-width:160px; padding:10px 14px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; background:var(--surface); color:var(--text); cursor:pointer;">';
-    foreach ($options as $val => $label) {
-        $selected = ($currentStatus === $val) ? 'selected' : '';
-        echo '<option value="' . htmlspecialchars($val) . '" ' . $selected . '>' . htmlspecialchars($label) . '</option>';
-    }
-    echo '</select>';
+  echo '<select name="status" style="flex:1; min-width:160px; padding:10px 14px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; background:var(--surface); color:var(--text); cursor:pointer;">';
+  foreach ($options as $val => $label) {
+    $selected = ($currentStatus === $val) ? 'selected' : '';
+    echo '<option value="' . htmlspecialchars($val) . '" ' . $selected . '>' . htmlspecialchars($label) . '</option>';
+  }
+  echo '</select>';
 }
 
 $pageTitle  = 'Riwayat Pesanan';
@@ -112,9 +112,8 @@ require_once __DIR__ . '/includes/header.php';
 
   <form method="GET" action="pesanan.php" style="margin:16px 0; display:flex; gap:8px; flex-wrap:wrap;">
     <input type="text" name="q" value="<?= htmlspecialchars($keyword) ?>"
-           placeholder="Cari kode pesanan atau nama produk..."
-           style="flex:2; min-width:200px; padding:10px 14px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; background:var(--surface); color:var(--text)">
-    
+      placeholder="Cari kode pesanan atau nama produk..."
+      style="flex:2; min-width:200px; padding:10px 14px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; background:var(--surface); color:var(--text)">
     <?php renderStatusFilterDirect($statusFilter); ?>
 
     <button type="submit" class="btn-primary" style="padding:10px 24px;">Filter</button>

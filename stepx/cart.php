@@ -17,134 +17,132 @@ $success = '';
 
 // CHECKOUT
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'checkout') {
+  // Ambil semua item keranjang dari DB
+  $st = $db->prepare('
+    SELECT k.produk_id, k.qty,
+      p.nama, p.harga_jual, p.hpp, p.stok, p.penjual_id
+    FROM keranjang k
+    JOIN produk p ON p.id = k.produk_id
+    WHERE k.user_id = ?
+  ');
+  $st->bind_param('i', $userId);
+  $st->execute();
+  $cartRows = $st->get_result()->fetch_all(MYSQLI_ASSOC);
+  $st->close();
 
-    // Ambil semua item keranjang dari DB
-    $st = $db->prepare('
-        SELECT k.produk_id, k.qty,
-               p.nama, p.harga_jual, p.hpp, p.stok, p.penjual_id
-        FROM keranjang k
-        JOIN produk p ON p.id = k.produk_id
-        WHERE k.user_id = ?
-    ');
-    $st->bind_param('i', $userId);
-    $st->execute();
-    $cartRows = $st->get_result()->fetch_all(MYSQLI_ASSOC);
-    $st->close();
+  if (empty($cartRows)) {
+    $error = 'Keranjang kosong, tidak ada yang di-checkout!';
+  }else{
+    // Validasi alamat & metode bayar
+    $alamatId    = (int)($_POST['alamat_id'] ?? 0);
+    $metodeBayar = $_POST['metode_bayar'] ?? '';
+    $metodeBayarValid = ['transfer_bank', 'cod', 'ewallet', 'kartu_kredit'];
 
-    if (empty($cartRows)) {
-        $error = 'Keranjang kosong, tidak ada yang di-checkout!';
-    } else {
-        // Validasi alamat & metode bayar
-        $alamatId    = (int)($_POST['alamat_id'] ?? 0);
-        $metodeBayar = $_POST['metode_bayar'] ?? '';
-        $metodeBayarValid = ['transfer_bank', 'cod', 'ewallet', 'kartu_kredit'];
+    if ($alamatId <= 0) {
+      $error = 'Pilih alamat pengiriman terlebih dahulu!';
+    }elseif(!in_array($metodeBayar, $metodeBayarValid)) {
+      $error = 'Pilih metode pembayaran terlebih dahulu!';
+    }else{
+      // Verifikasi alamat milik user ini
+      $st = $db->prepare('SELECT id FROM alamat_pembeli WHERE id = ? AND user_id = ? LIMIT 1');
+      $st->bind_param('ii', $alamatId, $userId);
+      $st->execute();
+      $alamatCek = $st->get_result()->fetch_assoc();
+      $st->close();
 
-        if ($alamatId <= 0) {
-            $error = 'Pilih alamat pengiriman terlebih dahulu!';
-        } elseif (!in_array($metodeBayar, $metodeBayarValid)) {
-            $error = 'Pilih metode pembayaran terlebih dahulu!';
-        } else {
-            // Verifikasi alamat milik user ini
-            $st = $db->prepare('SELECT id FROM alamat_pembeli WHERE id = ? AND user_id = ? LIMIT 1');
-            $st->bind_param('ii', $alamatId, $userId);
+      if (!$alamatCek) {
+        $error = 'Alamat tidak valid!';
+      }else{
+        // Validasi stok
+        $ok = true;
+        foreach ($cartRows as $row) {
+          if ((int)$row['stok'] < (int)$row['qty']) {
+            $error = 'Stok "' . htmlspecialchars($row['nama']) . '" tidak cukup! (tersisa: ' . $row['stok'] . ')';
+            $ok = false;
+            break;
+          }
+        }
+
+          if ($ok) {
+            // Hitung total
+            $subtotal = 0;
+            foreach ($cartRows as $row) {
+                $subtotal += (float)$row['harga_jual'] * (int)$row['qty'];
+            }
+            $ongkir     = 15000;
+            $diskon     = 0;
+            $totalBayar = $subtotal + $ongkir - $diskon;
+
+            // Kode pesanan unik
+            $kodePesanan = 'ORD-' . strtoupper(substr(uniqid(), -8));
+
+            // Insert pesanan
+            $st = $db->prepare('
+              INSERT INTO pesanan
+                (kode_pesanan, pembeli_id, alamat_id, subtotal, ongkos_kirim, diskon,
+                  total_bayar, metode_bayar, status_bayar, status_pesanan)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, "menunggu", "proses")
+            ');
+            $st->bind_param('siidddds',
+              $kodePesanan, $userId, $alamatId,
+              $subtotal, $ongkir, $diskon, $totalBayar, $metodeBayar
+            );
             $st->execute();
-            $alamatCek = $st->get_result()->fetch_assoc();
+            $pesananId = (int)$db->insert_id;
             $st->close();
 
-            if (!$alamatCek) {
-                $error = 'Alamat tidak valid!';
-            } else {
-                // Validasi stok
-                $ok = true;
-                foreach ($cartRows as $row) {
-                    if ((int)$row['stok'] < (int)$row['qty']) {
-                        $error = 'Stok "' . htmlspecialchars($row['nama']) . '" tidak cukup! (tersisa: ' . $row['stok'] . ')';
-                        $ok = false;
-                        break;
-                    }
-                }
+            // Insert detail_pesanan + kurangi stok
+            foreach ($cartRows as $row) {
+              $dProdukId  = (int)$row['produk_id'];
+              $dPenjualId = (int)$row['penjual_id'];
+              $dNama      = (string)$row['nama'];
+              $dHarga     = (float)$row['harga_jual'];
+              $dHpp       = (float)$row['hpp'];
+              $dQty       = (int)$row['qty'];
+              $dSubtotal  = $dHarga * $dQty;
 
-                if ($ok) {
-                    // Hitung total
-                    $subtotal = 0;
-                    foreach ($cartRows as $row) {
-                        $subtotal += (float)$row['harga_jual'] * (int)$row['qty'];
-                    }
-                    $ongkir     = 15000;
-                    $diskon     = 0;
-                    $totalBayar = $subtotal + $ongkir - $diskon;
+              $st = $db->prepare('
+                INSERT INTO detail_pesanan
+                  (pesanan_id, produk_id, penjual_id, nama_produk,
+                    harga_satuan, hpp_satuan, ukuran, qty, subtotal)
+                VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?)
+              ');
+              $st->bind_param('iiisddid',
+                $pesananId, $dProdukId, $dPenjualId, $dNama,
+                $dHarga, $dHpp, $dQty, $dSubtotal
+              );
+              $st->execute();
+              $st->close();
 
-                    // Kode pesanan unik
-                    $kodePesanan = 'ORD-' . strtoupper(substr(uniqid(), -8));
-
-                    // Insert pesanan
-                    $st = $db->prepare('
-                        INSERT INTO pesanan
-                            (kode_pesanan, pembeli_id, alamat_id, subtotal, ongkos_kirim, diskon,
-                             total_bayar, metode_bayar, status_bayar, status_pesanan)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, "menunggu", "proses")
-                    ');
-                    $st->bind_param('siidddds',
-                        $kodePesanan, $userId, $alamatId,
-                        $subtotal, $ongkir, $diskon, $totalBayar, $metodeBayar
-                    );
-                    $st->execute();
-                    $pesananId = (int)$db->insert_id;
-                    $st->close();
-
-                    // Insert detail_pesanan + kurangi stok
-                    foreach ($cartRows as $row) {
-                        $dProdukId  = (int)$row['produk_id'];
-                        $dPenjualId = (int)$row['penjual_id'];
-                        $dNama      = (string)$row['nama'];
-                        $dHarga     = (float)$row['harga_jual'];
-                        $dHpp       = (float)$row['hpp'];
-                        $dQty       = (int)$row['qty'];
-                        $dSubtotal  = $dHarga * $dQty;
-
-                        $st = $db->prepare('
-                            INSERT INTO detail_pesanan
-                                (pesanan_id, produk_id, penjual_id, nama_produk,
-                                 harga_satuan, hpp_satuan, ukuran, qty, subtotal)
-                            VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?)
-                        ');
-                        $st->bind_param('iiisddid',
-                            $pesananId, $dProdukId, $dPenjualId, $dNama,
-                            $dHarga, $dHpp, $dQty, $dSubtotal
-                        );
-                        $st->execute();
-                        $st->close();
-
-                        // Kurangi stok produk
-                        $st = $db->prepare('UPDATE produk SET stok = stok - ? WHERE id = ?');
-                        $st->bind_param('ii', $dQty, $dProdukId);
-                        $st->execute();
-                        $st->close();
-                    }
-
-                    // Kosongkan keranjang di DB
-                    $st = $db->prepare('DELETE FROM keranjang WHERE user_id = ?');
-                    $st->bind_param('i', $userId);
-                    $st->execute();
-                    $st->close();
-
-                    $success = '✅ Checkout berhasil! Pesanan <strong>' . htmlspecialchars($kodePesanan) . '</strong> sedang diproses.';
-                }
+              // Kurangi stok produk
+              $st = $db->prepare('UPDATE produk SET stok = stok - ? WHERE id = ?');
+              $st->bind_param('ii', $dQty, $dProdukId);
+              $st->execute();
+              $st->close();
             }
+          // Kosongkan keranjang di DB
+          $st = $db->prepare('DELETE FROM keranjang WHERE user_id = ?');
+          $st->bind_param('i', $userId);
+          $st->execute();
+          $st->close();
+
+          $success = '✅ Checkout berhasil! Pesanan <strong>' . htmlspecialchars($kodePesanan) . '</strong> sedang diproses.';
         }
+      }
     }
+  }
 }
 
 // Ambil item keranjang dari DB untuk ditampilkan
 $st = $db->prepare('
-    SELECT k.produk_id AS id, k.qty,
-           p.nama, p.brand, p.harga_jual, p.hpp, p.stok, p.emoji,
-           ka.nama AS kategori_nama
-    FROM keranjang k
-    JOIN produk p  ON p.id  = k.produk_id
-    LEFT JOIN kategori ka ON ka.id = p.kategori_id
-    WHERE k.user_id = ?
-    ORDER BY k.added_at ASC
+  SELECT k.produk_id AS id, k.qty,
+    p.nama, p.brand, p.harga_jual, p.hpp, p.stok, p.emoji,
+    ka.nama AS kategori_nama
+  FROM keranjang k
+  JOIN produk p  ON p.id  = k.produk_id
+  LEFT JOIN kategori ka ON ka.id = p.kategori_id
+  WHERE k.user_id = ?
+  ORDER BY k.added_at ASC
 ');
 $st->bind_param('i', $userId);
 $st->execute();
@@ -243,7 +241,7 @@ require_once __DIR__ . '/includes/header.php';
             <?php if (empty($daftarAlamat)): ?>
               <div style="font-size:13px;color:var(--muted);padding:10px;border:1px dashed var(--border);border-radius:8px;text-align:center">
                 Belum ada alamat tersimpan.<br>
-                <a href="profile.php" style="color:var(--accent)">+ Tambah alamat di Profil</a>
+                <a href="profile.php" style="color:green">+ Tambah alamat di Profil</a>
               </div>
             <?php else: ?>
               <div id="alamat-list" style="display:flex;flex-direction:column;gap:8px">
@@ -251,11 +249,11 @@ require_once __DIR__ . '/includes/header.php';
                   <div class="alamat-card <?= $al['is_utama'] ? 'selected' : '' ?>"
                        data-id="<?= $al['id'] ?>"
                        onclick="pilihAlamat(this, <?= $al['id'] ?>)"
-                       style="border:2px solid <?= $al['is_utama'] ? 'var(--accent)' : 'var(--border)' ?>;border-radius:10px;padding:12px 14px;cursor:pointer;transition:border-color .2s">
+                       style="border:2px solid <?= $al['is_utama'] ? 'green' : 'var(--border)' ?>;border-radius:10px;padding:12px 14px;cursor:pointer;transition:border-color .2s">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
                       <span style="font-size:12px;background:var(--surface2);padding:2px 8px;border-radius:20px;font-weight:500"><?= htmlspecialchars($al['label']) ?></span>
                       <?php if ($al['is_utama']): ?>
-                        <span style="font-size:11px;color:var(--accent);font-weight:600">✓ Utama</span>
+                        <span style="font-size:11px;color:green;font-weight:600">✓ Utama</span>
                       <?php endif; ?>
                     </div>
                     <div style="font-weight:600;font-size:14px"><?= htmlspecialchars($al['nama_penerima']) ?></div>
@@ -317,7 +315,7 @@ function pilihAlamat(el, id) {
   document.querySelectorAll('.alamat-card').forEach(c => {
     c.style.borderColor = 'var(--border)';
   });
-  el.style.borderColor = 'var(--accent)';
+  el.style.borderColor = 'green';
   document.getElementById('selected-alamat-id').value = id;
   cekFormReady();
 }
@@ -327,7 +325,7 @@ function pilihMetode(el, kode) {
     c.style.borderColor = 'var(--border)';
     c.style.background  = '';
   });
-  el.style.borderColor = 'var(--accent)';
+  el.style.borderColor = 'green';
   el.style.background  = 'rgba(var(--accent-rgb, 10,10,10),.05)';
   document.getElementById('selected-metode-bayar').value = kode;
   cekFormReady();

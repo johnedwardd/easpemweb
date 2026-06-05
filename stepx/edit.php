@@ -5,8 +5,8 @@ requireLogin();
 
 $user = currentUser();
 if ($user['role'] === 'pembeli') {
-    header('Location: catalog.php');
-    exit;
+  header('Location: catalog.php');
+  exit;
 }
 
 $db    = getDB();
@@ -24,39 +24,39 @@ $produk = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
 if (!$produk) {
-    $_SESSION['flash'] = ['msg' => 'Produk tidak ditemukan!', 'ok' => false];
-    header('Location: catalog.php');
-    exit;
+  $_SESSION['flash'] = ['msg' => 'Produk tidak ditemukan!', 'ok' => false];
+  header('Location: catalog.php');
+  exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nama        = trim($_POST['nama']  ?? '');
-    $brand       = trim($_POST['brand'] ?? '');
-    $harga       = floatval($_POST['harga'] ?? 0);
-    $hpp         = floatval($_POST['hpp']   ?? 0);
-    $stok        = intval($_POST['stok']    ?? 0);
-    $kategori_id = intval($_POST['kategori_id'] ?? $produk['kategori_id']);
-    $emoji       = trim($_POST['emoji'] ?? '👟') ?: '👟';
+  $nama        = trim($_POST['nama']  ?? '');
+  $brand       = trim($_POST['brand'] ?? '');
+  $harga       = floatval($_POST['harga'] ?? 0);
+  $hpp         = floatval($_POST['hpp']   ?? 0);
+  $stok        = intval($_POST['stok']    ?? 0);
+  $kategori_id = intval($_POST['kategori_id'] ?? $produk['kategori_id']);
+  $emoji       = trim($_POST['emoji'] ?? '👟') ?: '👟';
 
-    if (!$nama || !$brand || $harga <= 0) {
-        $error = 'Nama, Brand, dan Harga wajib diisi!';
-    } else {
-        // UPDATE mencakup semua kolom yang bisa diedit sesuai skema DB
-        $stmt = $db->prepare(
-            'UPDATE produk SET nama=?, brand=?, harga_jual=?, hpp=?, stok=?, kategori_id=?, emoji=?
-             WHERE id=?'
-        );
-        $stmt->bind_param('ssddiisi', $nama, $brand, $harga, $hpp, $stok, $kategori_id, $emoji, $id);
-        $stmt->execute();
-        $stmt->close();
+  if (!$nama || !$brand || $harga <= 0) {
+    $error = 'Nama, Brand, dan Harga wajib diisi!';
+  } else {
+    // UPDATE mencakup semua kolom yang bisa diedit sesuai skema DB
+    $stmt = $db->prepare(
+      'UPDATE produk SET nama=?, brand=?, harga_jual=?, hpp=?, stok=?, kategori_id=?, emoji=?
+        WHERE id=?'
+    );
+    $stmt->bind_param('ssddiisi', $nama, $brand, $harga, $hpp, $stok, $kategori_id, $emoji, $id);
+    $stmt->execute();
+    $stmt->close();
 
-        $_SESSION['flash'] = ['msg' => 'Produk berhasil diperbarui!', 'ok' => true];
-        header('Location: catalog.php');
-        exit;
-    }
+    $_SESSION['flash'] = ['msg' => 'Produk berhasil diperbarui!', 'ok' => true];
+    header('Location: catalog.php');
+    exit;
+  }
 
-    // Merge POST back ke $produk supaya form terisi ulang
-    $produk = array_merge($produk, compact('nama','brand','harga','hpp','stok','kategori_id','emoji'));
+  // Merge POST back ke $produk supaya form terisi ulang
+  $produk = array_merge($produk, compact('nama','brand','harga','hpp','stok','kategori_id','emoji'));
 }
 
 $pageTitle  = 'Edit Sepatu';
