@@ -112,9 +112,9 @@ CREATE TABLE IF NOT EXISTS `detail_pesanan` (
   CONSTRAINT `fk_detail_penjual` FOREIGN KEY (`penjual_id`) REFERENCES `users` (`id`),
   CONSTRAINT `fk_detail_pesanan` FOREIGN KEY (`pesanan_id`) REFERENCES `pesanan` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_detail_produk` FOREIGN KEY (`produk_id`) REFERENCES `produk` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table stepx_db.detail_pesanan: ~7 rows (approximately)
+-- Dumping data for table stepx_db.detail_pesanan: ~9 rows (approximately)
 DELETE FROM `detail_pesanan`;
 INSERT INTO `detail_pesanan` (`id`, `pesanan_id`, `produk_id`, `penjual_id`, `nama_produk`, `harga_satuan`, `hpp_satuan`, `ukuran`, `qty`, `subtotal`) VALUES
 	(1, 1, 1, 2, 'Air Max 270', 1350000.00, 750000.00, '41', 1, 1350000.00),
@@ -125,7 +125,8 @@ INSERT INTO `detail_pesanan` (`id`, `pesanan_id`, `produk_id`, `penjual_id`, `na
 	(6, 6, 4, 2, 'Chuck Taylor All Star', 550000.00, 270000.00, '39', 2, 1100000.00),
 	(7, 7, 7, 2, 'Pegasus 39', 1250000.00, 680000.00, '41', 1, 1250000.00),
 	(8, 8, 9, 2, '0', 720000.00, 380000.00, NULL, 1, 720000.00),
-	(9, 8, 10, 2, '0', 420000.00, 200000.00, NULL, 1, 420000.00);
+	(9, 8, 10, 2, '0', 420000.00, 200000.00, NULL, 1, 420000.00),
+	(13, 13, 7, 2, 'Pegasus 39', 1250000.00, 680000.00, NULL, 1, 1250000.00);
 
 -- Dumping structure for table stepx_db.kategori
 CREATE TABLE IF NOT EXISTS `kategori` (
@@ -158,7 +159,7 @@ CREATE TABLE IF NOT EXISTS `keranjang` (
   KEY `fk_keranjang_produk` (`produk_id`),
   CONSTRAINT `fk_keranjang_produk` FOREIGN KEY (`produk_id`) REFERENCES `produk` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_keranjang_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table stepx_db.keranjang: ~0 rows (approximately)
 DELETE FROM `keranjang`;
@@ -187,9 +188,9 @@ CREATE TABLE IF NOT EXISTS `pesanan` (
   KEY `idx_pesanan_tanggal` (`created_at`),
   CONSTRAINT `fk_pesanan_alamat` FOREIGN KEY (`alamat_id`) REFERENCES `alamat_pembeli` (`id`),
   CONSTRAINT `fk_pesanan_pembeli` FOREIGN KEY (`pembeli_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table stepx_db.pesanan: ~7 rows (approximately)
+-- Dumping data for table stepx_db.pesanan: ~8 rows (approximately)
 DELETE FROM `pesanan`;
 INSERT INTO `pesanan` (`id`, `kode_pesanan`, `pembeli_id`, `alamat_id`, `subtotal`, `ongkos_kirim`, `diskon`, `total_bayar`, `metode_bayar`, `status_bayar`, `status_pesanan`, `catatan`, `created_at`, `updated_at`) VALUES
 	(1, '#ORD-001', 3, 1, 1350000.00, 15000.00, 0.00, 1365000.00, 'transfer_bank', 'lunas', 'selesai', NULL, '2026-06-02 21:26:05', '2026-06-02 21:26:05'),
@@ -199,7 +200,8 @@ INSERT INTO `pesanan` (`id`, `kode_pesanan`, `pembeli_id`, `alamat_id`, `subtota
 	(5, '#ORD-005', 7, 5, 1580000.00, 20000.00, 0.00, 1600000.00, 'transfer_bank', 'lunas', 'selesai', NULL, '2026-06-02 21:26:05', '2026-06-02 21:26:05'),
 	(6, '#ORD-006', 8, 6, 1100000.00, 15000.00, 0.00, 1115000.00, 'ewallet', 'lunas', 'selesai', NULL, '2026-06-02 21:26:05', '2026-06-03 15:53:53'),
 	(7, '#ORD-007', 9, 7, 1250000.00, 15000.00, 0.00, 1265000.00, 'transfer_bank', 'menunggu', 'selesai', NULL, '2026-06-02 21:26:05', '2026-06-03 16:02:36'),
-	(8, '#ORD-797C46', 3, 1, 1140000.00, 15000.00, 0.00, 1155000.00, 'transfer_bank', 'menunggu', 'proses', NULL, '2026-06-03 16:06:47', '2026-06-03 16:06:47');
+	(8, '#ORD-797C46', 3, 1, 1140000.00, 15000.00, 0.00, 1155000.00, 'transfer_bank', 'menunggu', 'proses', NULL, '2026-06-03 16:06:47', '2026-06-03 16:06:47'),
+	(13, 'ORD-A7A07292', 3, 1, 1250000.00, 15000.00, 0.00, 1265000.00, 'kartu_kredit', 'menunggu', 'proses', NULL, '2026-06-05 00:48:42', '2026-06-05 00:48:42');
 
 -- Dumping structure for table stepx_db.produk
 CREATE TABLE IF NOT EXISTS `produk` (
@@ -238,7 +240,7 @@ INSERT INTO `produk` (`id`, `penjual_id`, `kategori_id`, `nama`, `brand`, `deskr
 	(4, 2, 2, 'Chuck Taylor All Star', 'Converse', NULL, 550000.00, 270000.00, 45, 500, '👞', 0, 'aktif', '2026-06-02 21:26:05', '2026-06-02 21:26:05'),
 	(5, 2, 3, 'Oxford Brogue', 'Clarks', NULL, 980000.00, 520000.00, 12, 500, '🥾', 0, 'aktif', '2026-06-02 21:26:05', '2026-06-02 21:26:05'),
 	(6, 2, 1, 'Gel-Kayano 29', 'Asics', NULL, 1580000.00, 880000.00, 8, 500, '👟', 1, 'aktif', '2026-06-02 21:26:05', '2026-06-02 21:26:05'),
-	(7, 2, 1, 'Pegasus 39', 'Nike', NULL, 1250000.00, 680000.00, 30, 500, '👟', 0, 'aktif', '2026-06-02 21:26:05', '2026-06-02 21:26:05'),
+	(7, 2, 1, 'Pegasus 39', 'Nike', NULL, 1250000.00, 680000.00, 29, 500, '👟', 0, 'aktif', '2026-06-02 21:26:05', '2026-06-05 00:48:42'),
 	(8, 2, 2, 'Handball Spezial', 'Adidas', NULL, 1100000.00, 580000.00, 5, 500, '👟', 1, 'aktif', '2026-06-02 21:26:05', '2026-06-02 21:26:05'),
 	(9, 2, 2, 'Suede Classic', 'Puma', NULL, 720000.00, 380000.00, 19, 500, '🥿', 0, 'aktif', '2026-06-02 21:26:05', '2026-06-03 16:06:47'),
 	(10, 2, 4, 'Pro Court', 'Puma', NULL, 420000.00, 200000.00, 49, 500, '🏓', 0, 'aktif', '2026-06-02 21:26:05', '2026-06-03 16:06:47'),
@@ -381,20 +383,21 @@ CREATE TABLE IF NOT EXISTS `users` (
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table stepx_db.users: ~9 rows (approximately)
+-- Dumping data for table stepx_db.users: ~10 rows (approximately)
 DELETE FROM `users`;
 INSERT INTO `users` (`id`, `nama`, `email`, `password`, `no_hp`, `role`, `status`, `created_at`, `updated_at`) VALUES
-	(1, 'Admin StepX', 'admin@stepx.id', 'password123', '081200000001', 'admin', 'aktif', '2026-06-02 21:26:05', '2026-06-03 14:25:20'),
-	(2, 'Toko StepX', 'penjual@stepx.id', 'password123', '081200000002', 'penjual', 'aktif', '2026-06-02 21:26:05', '2026-06-03 14:25:20'),
-	(3, 'Rizky Pratama', 'rizky@gmail.com', 'password123', '081211111111', 'pembeli', 'aktif', '2026-06-02 21:26:05', '2026-06-03 14:25:20'),
-	(4, 'Sari Dewi', 'sari@gmail.com', 'password123', '081222222222', 'pembeli', 'aktif', '2026-06-02 21:26:05', '2026-06-03 14:25:20'),
-	(5, 'Budi Santoso', 'budi@gmail.com', 'password123', '081233333333', 'pembeli', 'aktif', '2026-06-02 21:26:05', '2026-06-03 14:25:20'),
-	(6, 'Eka Putri', 'eka@gmail.com', 'password123', '081244444444', 'pembeli', 'aktif', '2026-06-02 21:26:05', '2026-06-03 14:25:20'),
-	(7, 'Ahmad Fauzi', 'ahmad@gmail.com', 'password123', '081255555555', 'pembeli', 'aktif', '2026-06-02 21:26:05', '2026-06-03 14:25:20'),
-	(8, 'Nining Wahyu', 'nining@gmail.com', 'password123', '081266666666', 'pembeli', 'aktif', '2026-06-02 21:26:05', '2026-06-03 14:25:20'),
-	(9, 'Dani Kurnia', 'dani@gmail.com', 'password123', '081277777777', 'pembeli', 'aktif', '2026-06-02 21:26:05', '2026-06-03 14:25:20');
+	(1, 'Admin StepX', 'admin@stepx.id', '$2y$10$s5aKLvaKkZ/DeSywxTG0beAgX9zb90C91yzQ9cOxRGbwz2SSjv3fK', '081200000001', 'admin', 'aktif', '2026-06-02 21:26:05', '2026-06-06 01:10:32'),
+	(2, 'Toko StepX', 'penjual@stepx.id', '$2y$10$aenscE1Ie2r24foGNwWgZentDLj0fauIIsuj/ElP1kKnZcaFt.GXq', '081200000002', 'penjual', 'aktif', '2026-06-02 21:26:05', '2026-06-06 01:13:10'),
+	(3, 'Rizky Pratama', 'rizky@gmail.com', '$2y$10$Vn.oNDWZw.mi4GPLQYa3ZOgGCs2fPntIV/Rc32AkAGsP6rOFlxxFu', '081211111111', 'pembeli', 'aktif', '2026-06-02 21:26:05', '2026-06-06 01:13:37'),
+	(4, 'Sari Dewi', 'sari@gmail.com', '$2y$10$Eoz/iBpd2EoVxrKk7DKGMe.N1Di5Bag.3wKXsWaTvPeSKTO5riS.O', '081222222222', 'pembeli', 'aktif', '2026-06-02 21:26:05', '2026-06-06 01:14:00'),
+	(5, 'Budi Santoso', 'budi@gmail.com', '$2y$10$/oGr2SCWe11DvWIr8HpBz.6ZkKCVpNWjotFrCd.ChZHq5iDavbUBe', '081233333333', 'pembeli', 'aktif', '2026-06-02 21:26:05', '2026-06-06 01:14:16'),
+	(6, 'Eka Putri', 'eka@gmail.com', '$2y$10$7QIO23908ucbXl2jsRurYetQpsI3H.RM0xw1X7pX6sPmfW4qk9Qn2', '081244444444', 'pembeli', 'aktif', '2026-06-02 21:26:05', '2026-06-06 01:14:33'),
+	(7, 'Ahmad Fauzi', 'ahmad@gmail.com', '$2y$10$9Ef4LFKMCV2wcqZZ4fhEDe8xsKRuRP5GurGuTkxqKsFTHFUgAGP.W', '081255555555', 'pembeli', 'aktif', '2026-06-02 21:26:05', '2026-06-06 01:15:35'),
+	(8, 'Nining Wahyu', 'nining@gmail.com', '$2y$10$VlrtchBKlxEDe7Q2Ddnr.uks.foSMgXcylxr39qMRmp5Y9arkPmMu', '081266666666', 'pembeli', 'aktif', '2026-06-02 21:26:05', '2026-06-06 01:16:33'),
+	(9, 'Dani Kurnia', 'dani@gmail.com', '$2y$10$2.DoEVbyrJZ6HxO/E18IKeSluzi8by46EQYBTeiODLGz/eRsGtZci', '081277777777', 'pembeli', 'aktif', '2026-06-02 21:26:05', '2026-06-06 01:17:03'),
+	(12, 'Salampo Kalapo', 'salampo@gmail.com', '$2y$10$IMXUDL1tc1V3njciEPIxouYop7ShjetjEY4PNVsrn0SezzqlzeM8C', '082343523453', 'pembeli', 'aktif', '2026-06-04 23:51:21', '2026-06-05 01:36:58');
 
 -- Dumping structure for view stepx_db.v_database_pelanggan
 -- Creating temporary table to overcome VIEW dependency errors
