@@ -49,50 +49,6 @@ INSERT INTO `alamat_pembeli` (`id`, `user_id`, `label`, `nama_penerima`, `no_hp`
 	(6, 8, 'Rumah', 'Nining Wahyu', '081266666666', 'D.I. Yogyakarta', 'Yogyakarta', NULL, '55111', 'Jl. Malioboro No. 14', 1, '2026-06-02 21:26:05'),
 	(7, 9, 'Rumah', 'Dani Kurnia', '081277777777', 'Jawa Timur', 'Sidoarjo', NULL, '61212', 'Perum Graha Natura Blok C-5', 1, '2026-06-02 21:26:05');
 
--- Dumping structure for table stepx_db.biaya_operasional
-CREATE TABLE IF NOT EXISTS `biaya_operasional` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `penjual_id` int unsigned NOT NULL,
-  `nama_biaya` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `nominal` decimal(12,2) NOT NULL,
-  `bulan` tinyint NOT NULL,
-  `tahun` year NOT NULL,
-  `keterangan` text COLLATE utf8mb4_unicode_ci,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `idx_biaya_bulan_thn` (`penjual_id`,`tahun`,`bulan`),
-  CONSTRAINT `fk_biaya_penjual` FOREIGN KEY (`penjual_id`) REFERENCES `users` (`id`),
-  CONSTRAINT `biaya_operasional_chk_1` CHECK ((`bulan` between 1 and 12))
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Dumping data for table stepx_db.biaya_operasional: ~24 rows (approximately)
-DELETE FROM `biaya_operasional`;
-INSERT INTO `biaya_operasional` (`id`, `penjual_id`, `nama_biaya`, `nominal`, `bulan`, `tahun`, `keterangan`, `created_at`) VALUES
-	(1, 2, 'Sewa Toko', 1500000.00, 1, '2025', NULL, '2026-06-02 21:26:05'),
-	(2, 2, 'Gaji Karyawan', 800000.00, 1, '2025', NULL, '2026-06-02 21:26:05'),
-	(3, 2, 'Listrik & Air', 300000.00, 1, '2025', NULL, '2026-06-02 21:26:05'),
-	(4, 2, 'Marketing', 200000.00, 1, '2025', NULL, '2026-06-02 21:26:05'),
-	(5, 2, 'Sewa Toko', 1500000.00, 2, '2025', NULL, '2026-06-02 21:26:05'),
-	(6, 2, 'Gaji Karyawan', 800000.00, 2, '2025', NULL, '2026-06-02 21:26:05'),
-	(7, 2, 'Listrik & Air', 300000.00, 2, '2025', NULL, '2026-06-02 21:26:05'),
-	(8, 2, 'Marketing', 300000.00, 2, '2025', NULL, '2026-06-02 21:26:05'),
-	(9, 2, 'Sewa Toko', 1500000.00, 3, '2025', NULL, '2026-06-02 21:26:05'),
-	(10, 2, 'Gaji Karyawan', 800000.00, 3, '2025', NULL, '2026-06-02 21:26:05'),
-	(11, 2, 'Listrik & Air', 250000.00, 3, '2025', NULL, '2026-06-02 21:26:05'),
-	(12, 2, 'Marketing', 200000.00, 3, '2025', NULL, '2026-06-02 21:26:05'),
-	(13, 2, 'Sewa Toko', 1500000.00, 4, '2025', NULL, '2026-06-02 21:26:05'),
-	(14, 2, 'Gaji Karyawan', 900000.00, 4, '2025', NULL, '2026-06-02 21:26:05'),
-	(15, 2, 'Listrik & Air', 350000.00, 4, '2025', NULL, '2026-06-02 21:26:05'),
-	(16, 2, 'Marketing', 350000.00, 4, '2025', NULL, '2026-06-02 21:26:05'),
-	(17, 2, 'Sewa Toko', 1500000.00, 5, '2025', NULL, '2026-06-02 21:26:05'),
-	(18, 2, 'Gaji Karyawan', 900000.00, 5, '2025', NULL, '2026-06-02 21:26:05'),
-	(19, 2, 'Listrik & Air', 400000.00, 5, '2025', NULL, '2026-06-02 21:26:05'),
-	(20, 2, 'Marketing', 600000.00, 5, '2025', NULL, '2026-06-02 21:26:05'),
-	(21, 2, 'Sewa Toko', 1500000.00, 6, '2025', NULL, '2026-06-02 21:26:05'),
-	(22, 2, 'Gaji Karyawan', 900000.00, 6, '2025', NULL, '2026-06-02 21:26:05'),
-	(23, 2, 'Listrik & Air', 350000.00, 6, '2025', NULL, '2026-06-02 21:26:05'),
-	(24, 2, 'Marketing', 450000.00, 6, '2025', NULL, '2026-06-02 21:26:05');
-
 -- Dumping structure for table stepx_db.detail_pesanan
 CREATE TABLE IF NOT EXISTS `detail_pesanan` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -112,7 +68,7 @@ CREATE TABLE IF NOT EXISTS `detail_pesanan` (
   CONSTRAINT `fk_detail_penjual` FOREIGN KEY (`penjual_id`) REFERENCES `users` (`id`),
   CONSTRAINT `fk_detail_pesanan` FOREIGN KEY (`pesanan_id`) REFERENCES `pesanan` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_detail_produk` FOREIGN KEY (`produk_id`) REFERENCES `produk` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table stepx_db.detail_pesanan: ~9 rows (approximately)
 DELETE FROM `detail_pesanan`;
@@ -126,7 +82,10 @@ INSERT INTO `detail_pesanan` (`id`, `pesanan_id`, `produk_id`, `penjual_id`, `na
 	(7, 7, 7, 2, 'Pegasus 39', 1250000.00, 680000.00, '41', 1, 1250000.00),
 	(8, 8, 9, 2, '0', 720000.00, 380000.00, NULL, 1, 720000.00),
 	(9, 8, 10, 2, '0', 420000.00, 200000.00, NULL, 1, 420000.00),
-	(13, 13, 7, 2, 'Pegasus 39', 1250000.00, 680000.00, NULL, 1, 1250000.00);
+	(13, 13, 7, 2, 'Pegasus 39', 1250000.00, 680000.00, NULL, 1, 1250000.00),
+	(14, 14, 1, 2, 'Air Max 270', 1350000.00, 750000.00, NULL, 1, 1350000.00),
+	(15, 14, 4, 2, 'Chuck Taylor All Star', 550000.00, 270000.00, NULL, 1, 550000.00),
+	(16, 14, 10, 2, 'Pro Court', 420000.00, 200000.00, NULL, 1, 420000.00);
 
 -- Dumping structure for table stepx_db.kategori
 CREATE TABLE IF NOT EXISTS `kategori` (
@@ -159,10 +118,35 @@ CREATE TABLE IF NOT EXISTS `keranjang` (
   KEY `fk_keranjang_produk` (`produk_id`),
   CONSTRAINT `fk_keranjang_produk` FOREIGN KEY (`produk_id`) REFERENCES `produk` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_keranjang_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table stepx_db.keranjang: ~0 rows (approximately)
 DELETE FROM `keranjang`;
+
+-- Dumping structure for table stepx_db.password_resets
+CREATE TABLE IF NOT EXISTS `password_resets` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int unsigned NOT NULL,
+  `token` varchar(64) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `used` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `token` (`token`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Dumping data for table stepx_db.password_resets: ~8 rows (approximately)
+DELETE FROM `password_resets`;
+INSERT INTO `password_resets` (`id`, `user_id`, `token`, `expires_at`, `used`, `created_at`) VALUES
+	(1, 1, 'bb7ccf5cfcf81b8fef13f38b58391431', '2026-06-05 18:40:19', 1, '2026-06-06 01:10:19'),
+	(2, 2, '2eaf7396ac0e5efbd0d15c34b218332f', '2026-06-05 18:42:58', 1, '2026-06-06 01:12:58'),
+	(3, 3, 'd9df0db26928a24242a02e34b8748ef5', '2026-06-05 18:43:28', 1, '2026-06-06 01:13:28'),
+	(4, 4, '7f3fa1195eff0e0ad3c62f050a1a4d44', '2026-06-05 18:43:52', 1, '2026-06-06 01:13:52'),
+	(5, 5, '887491a92de97ebd70ba2a10dabe1047', '2026-06-05 18:44:09', 1, '2026-06-06 01:14:09'),
+	(6, 6, 'd238b575fc61bf75926f8e9902406c91', '2026-06-05 18:44:27', 1, '2026-06-06 01:14:27'),
+	(7, 7, '545ee9ab859c9500e1edff1790421215', '2026-06-05 18:44:46', 1, '2026-06-06 01:14:46'),
+	(8, 8, '5ca8a5dfb45005b9e64e88881a1757e5', '2026-06-05 18:46:26', 1, '2026-06-06 01:16:26'),
+	(9, 9, '1e2fd41447356f3ff2737f2537369712', '2026-06-05 18:46:58', 1, '2026-06-06 01:16:58');
 
 -- Dumping structure for table stepx_db.pesanan
 CREATE TABLE IF NOT EXISTS `pesanan` (
@@ -188,7 +172,7 @@ CREATE TABLE IF NOT EXISTS `pesanan` (
   KEY `idx_pesanan_tanggal` (`created_at`),
   CONSTRAINT `fk_pesanan_alamat` FOREIGN KEY (`alamat_id`) REFERENCES `alamat_pembeli` (`id`),
   CONSTRAINT `fk_pesanan_pembeli` FOREIGN KEY (`pembeli_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table stepx_db.pesanan: ~8 rows (approximately)
 DELETE FROM `pesanan`;
@@ -201,7 +185,8 @@ INSERT INTO `pesanan` (`id`, `kode_pesanan`, `pembeli_id`, `alamat_id`, `subtota
 	(6, '#ORD-006', 8, 6, 1100000.00, 15000.00, 0.00, 1115000.00, 'ewallet', 'lunas', 'selesai', NULL, '2026-06-02 21:26:05', '2026-06-03 15:53:53'),
 	(7, '#ORD-007', 9, 7, 1250000.00, 15000.00, 0.00, 1265000.00, 'transfer_bank', 'menunggu', 'selesai', NULL, '2026-06-02 21:26:05', '2026-06-03 16:02:36'),
 	(8, '#ORD-797C46', 3, 1, 1140000.00, 15000.00, 0.00, 1155000.00, 'transfer_bank', 'menunggu', 'proses', NULL, '2026-06-03 16:06:47', '2026-06-03 16:06:47'),
-	(13, 'ORD-A7A07292', 3, 1, 1250000.00, 15000.00, 0.00, 1265000.00, 'kartu_kredit', 'menunggu', 'proses', NULL, '2026-06-05 00:48:42', '2026-06-05 00:48:42');
+	(13, 'ORD-A7A07292', 3, 1, 1250000.00, 15000.00, 0.00, 1265000.00, 'kartu_kredit', 'menunggu', 'proses', NULL, '2026-06-05 00:48:42', '2026-06-05 00:48:42'),
+	(14, 'ORD-6852C8BB', 9, 7, 2320000.00, 15000.00, 0.00, 2335000.00, 'cod', 'menunggu', 'selesai', NULL, '2026-06-06 18:37:41', '2026-06-06 18:40:38');
 
 -- Dumping structure for table stepx_db.produk
 CREATE TABLE IF NOT EXISTS `produk` (
@@ -234,16 +219,16 @@ CREATE TABLE IF NOT EXISTS `produk` (
 -- Dumping data for table stepx_db.produk: ~12 rows (approximately)
 DELETE FROM `produk`;
 INSERT INTO `produk` (`id`, `penjual_id`, `kategori_id`, `nama`, `brand`, `deskripsi`, `harga_jual`, `hpp`, `stok`, `berat_gram`, `emoji`, `is_new`, `status`, `created_at`, `updated_at`) VALUES
-	(1, 2, 1, 'Air Max 270', 'Nike', NULL, 1350000.00, 750000.00, 24, 500, '👟', 1, 'aktif', '2026-06-02 21:26:05', '2026-06-02 21:26:05'),
+	(1, 2, 1, 'Air Max 270', 'Nike', NULL, 1350000.00, 750000.00, 23, 500, '👟', 1, 'aktif', '2026-06-02 21:26:05', '2026-06-06 18:37:41'),
 	(2, 2, 1, 'Ultra Boost 22', 'Adidas', NULL, 1750000.00, 950000.00, 15, 500, '🏃', 0, 'aktif', '2026-06-02 21:26:05', '2026-06-02 21:26:05'),
 	(3, 2, 2, 'Old Skool Classic', 'Vans', NULL, 650000.00, 320000.00, 38, 500, '🥿', 0, 'aktif', '2026-06-02 21:26:05', '2026-06-02 21:26:05'),
-	(4, 2, 2, 'Chuck Taylor All Star', 'Converse', NULL, 550000.00, 270000.00, 45, 500, '👞', 0, 'aktif', '2026-06-02 21:26:05', '2026-06-02 21:26:05'),
+	(4, 2, 2, 'Chuck Taylor All Star', 'Converse', NULL, 550000.00, 270000.00, 44, 500, '👞', 0, 'aktif', '2026-06-02 21:26:05', '2026-06-06 18:37:41'),
 	(5, 2, 3, 'Oxford Brogue', 'Clarks', NULL, 980000.00, 520000.00, 12, 500, '🥾', 0, 'aktif', '2026-06-02 21:26:05', '2026-06-02 21:26:05'),
 	(6, 2, 1, 'Gel-Kayano 29', 'Asics', NULL, 1580000.00, 880000.00, 8, 500, '👟', 1, 'aktif', '2026-06-02 21:26:05', '2026-06-02 21:26:05'),
 	(7, 2, 1, 'Pegasus 39', 'Nike', NULL, 1250000.00, 680000.00, 29, 500, '👟', 0, 'aktif', '2026-06-02 21:26:05', '2026-06-05 00:48:42'),
 	(8, 2, 2, 'Handball Spezial', 'Adidas', NULL, 1100000.00, 580000.00, 5, 500, '👟', 1, 'aktif', '2026-06-02 21:26:05', '2026-06-02 21:26:05'),
 	(9, 2, 2, 'Suede Classic', 'Puma', NULL, 720000.00, 380000.00, 19, 500, '🥿', 0, 'aktif', '2026-06-02 21:26:05', '2026-06-03 16:06:47'),
-	(10, 2, 4, 'Pro Court', 'Puma', NULL, 420000.00, 200000.00, 49, 500, '🏓', 0, 'aktif', '2026-06-02 21:26:05', '2026-06-03 16:06:47'),
+	(10, 2, 4, 'Pro Court', 'Puma', NULL, 420000.00, 200000.00, 48, 500, '🏓', 0, 'aktif', '2026-06-02 21:26:05', '2026-06-06 18:37:41'),
 	(11, 2, 2, 'Slip-On Pro', 'Vans', NULL, 580000.00, 290000.00, 5, 500, '🥿', 0, 'aktif', '2026-06-02 21:26:05', '2026-06-03 15:33:59'),
 	(12, 2, 3, 'Loafer Derby', 'Ecco', NULL, 1450000.00, 800000.00, 9, 500, '👞', 1, 'aktif', '2026-06-02 21:26:05', '2026-06-02 21:26:05');
 
@@ -344,32 +329,6 @@ INSERT INTO `riwayat_status_pesanan` (`id`, `pesanan_id`, `status`, `keterangan`
 	(9, 5, 'dikirim', 'Paket dikirim via AnterAja, no resi: AA345678', '2026-06-02 21:26:05'),
 	(10, 5, 'selesai', 'Pesanan diterima pembeli', '2026-06-02 21:26:05');
 
--- Dumping structure for table stepx_db.ulasan
-CREATE TABLE IF NOT EXISTS `ulasan` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `produk_id` int unsigned NOT NULL,
-  `user_id` int unsigned NOT NULL,
-  `pesanan_id` int unsigned NOT NULL,
-  `rating` tinyint NOT NULL,
-  `komentar` text COLLATE utf8mb4_unicode_ci,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_ulasan` (`user_id`,`produk_id`,`pesanan_id`),
-  KEY `fk_ulasan_produk` (`produk_id`),
-  KEY `fk_ulasan_pesanan` (`pesanan_id`),
-  CONSTRAINT `fk_ulasan_pesanan` FOREIGN KEY (`pesanan_id`) REFERENCES `pesanan` (`id`),
-  CONSTRAINT `fk_ulasan_produk` FOREIGN KEY (`produk_id`) REFERENCES `produk` (`id`),
-  CONSTRAINT `fk_ulasan_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  CONSTRAINT `ulasan_chk_1` CHECK ((`rating` between 1 and 5))
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Dumping data for table stepx_db.ulasan: ~3 rows (approximately)
-DELETE FROM `ulasan`;
-INSERT INTO `ulasan` (`id`, `produk_id`, `user_id`, `pesanan_id`, `rating`, `komentar`, `created_at`) VALUES
-	(1, 1, 3, 1, 5, 'Sepatu sangat nyaman dipakai, ukuran pas. Pengiriman cepat!', '2026-06-02 21:26:05'),
-	(2, 3, 5, 3, 4, 'Kualitas bagus, sesuai gambar. Tapi pengiriman agak lama.', '2026-06-02 21:26:05'),
-	(3, 6, 7, 5, 5, 'Mantap banget, cocok buat lari pagi. Recommended!', '2026-06-02 21:26:05');
-
 -- Dumping structure for table stepx_db.users
 CREATE TABLE IF NOT EXISTS `users` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -385,7 +344,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table stepx_db.users: ~10 rows (approximately)
+-- Dumping data for table stepx_db.users: ~9 rows (approximately)
 DELETE FROM `users`;
 INSERT INTO `users` (`id`, `nama`, `email`, `password`, `no_hp`, `role`, `status`, `created_at`, `updated_at`) VALUES
 	(1, 'Admin StepX', 'admin@stepx.id', '$2y$10$s5aKLvaKkZ/DeSywxTG0beAgX9zb90C91yzQ9cOxRGbwz2SSjv3fK', '081200000001', 'admin', 'aktif', '2026-06-02 21:26:05', '2026-06-06 01:10:32'),
@@ -414,20 +373,7 @@ CREATE TABLE `v_database_pelanggan` (
 
 -- Dumping structure for view stepx_db.v_laporan_laba_bulanan
 -- Creating temporary table to overcome VIEW dependency errors
-CREATE TABLE `v_laporan_laba_bulanan` (
-	`penjual_id` INT(10) UNSIGNED NOT NULL,
-	`nama_penjual` VARCHAR(100) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-	`tahun` INT(10) NULL,
-	`bulan` INT(10) NULL,
-	`nama_bulan` VARCHAR(9) NULL COLLATE 'utf8mb4_0900_ai_ci',
-	`jumlah_transaksi` BIGINT(19) NOT NULL,
-	`unit_terjual` DECIMAL(32,0) NULL,
-	`pendapatan` DECIMAL(34,2) NULL,
-	`total_hpp` DECIMAL(44,2) NULL,
-	`laba_bruto` DECIMAL(45,2) NULL,
-	`biaya_operasional` DECIMAL(34,2) NOT NULL,
-	`laba_neto` DECIMAL(46,2) NULL,
-	`margin_bruto_pct` DECIMAL(51,2) NULL
+CREATE TABLE `v_laporan_laba_bulanan` 
 ) ENGINE=MyISAM;
 
 -- Dumping structure for view stepx_db.v_produk_terlaris
